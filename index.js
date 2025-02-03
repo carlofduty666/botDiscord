@@ -145,10 +145,10 @@ const commands = [
         description: 'what pokemon are you looking for? :)',
         options: [
             {
-                type: 3, // Tipo 3 es para string
+                type: 3,
                 name: 'name',
                 description: 'Pokemon name',
-                required: true, // Este campo es obligatorio
+                required: true,
             }
         ]
     }
@@ -172,7 +172,7 @@ const rest = new REST({ version: '10' }).setToken('MTMxNTA0NTU0MzE4MDc2MzE4Nw.Gt
 })();
 
 client.on('ready', () => {
-    console.log(`Conectado como ${client.user.tag}!`);
+    console.log(`Logged as ${client.user.tag}!`);
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -181,7 +181,7 @@ client.on('interactionCreate', async (interaction) => {
     const { commandName } = interaction;
 
     if (commandName === 'pokemon') {
-        const pokemonName = interaction.options.getString('name'); // Captura el argumento
+        const pokemonName = interaction.options.getString('name');
 
         if (!pokemonName) {
             return interaction.reply('please, enter a pokemon name :)');
@@ -211,4 +211,4 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
-client.login('MTMxNTA0NTU0MzE4MDc2MzE4Nw.Gtxjgz.UJ9VwAU82UYiXMjaHbM12ohBfmfPAL1lImTG_w'); // Reemplaza con tu token
+client.login('MTMxNTA0NTU0MzE4MDc2MzE4Nw.Gtxjgz.UJ9VwAU82UYiXMjaHbM12ohBfmfPAL1lImTG_w');
