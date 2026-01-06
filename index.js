@@ -430,29 +430,34 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         try {
+            await interaction.deferReply(); // Fetching multiple pokemon takes time
             const speciesData = await P.getPokemonSpeciesByName(pokemonName.toLowerCase());
             const evolutionChainUrl = speciesData.evolution_chain.url;
-            // PokedexPromiseV2 helper for generic URL not always available, but we can extract ID
             const chainId = evolutionChainUrl.split('/').filter(Boolean).pop();
             const evolutionData = await P.getEvolutionChainById(chainId);
 
-            let chain = [];
+            let names = [];
             let current = evolutionData.chain;
 
             do {
-                chain.push(current.species.name);
+                names.push(current.species.name);
                 current = current.evolves_to[0];
             } while (current);
 
-            const embed = new EmbedBuilder()
-                .setTitle(getMsg(guildId, 'evolutionTitle', pokemonName))
-                .setDescription(chain.join(' -> '))
-                .setColor('#FFFF00');
+            // Fetch data for all pokemon in the chain to get images
+            const pokemonDataList = await Promise.all(names.map(name => P.getPokemonByName(name)));
 
-            await interaction.reply({ embeds: [embed] });
+            const embeds = pokemonDataList.map((pokeData, index) => {
+                return new EmbedBuilder()
+                    .setTitle(index === 0 ? getMsg(guildId, 'evolutionTitle', pokemonName) : `Evolution: ${pokeData.name}`)
+                    .setImage(pokeData.sprites.front_default)
+                    .setColor(index === 0 ? '#FFFF00' : '#FFA500'); // Different shade for evos
+            });
+
+            await interaction.editReply({ embeds: embeds });
         } catch (error) {
             console.error(error);
-            await interaction.reply(getMsg(guildId, 'notFound'));
+            await interaction.editReply(getMsg(guildId, 'notFound'));
         }
     }
 
