@@ -1,1 +1,6 @@
 /api.js
+.env
+/node_modules
+
+/.zencoder
+/.zenflow

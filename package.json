@@ -4,7 +4,7 @@
   "description": "a simple bot",
   "main": "index.js",
   "scripts": {
-    "start": "echo \"Initializing server\" && node index.js",
+    "start": "echo \"Initializing server\" && node --dns-result-order=ipv4first index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Carlos Longa",
@@ -13,6 +13,8 @@
   "dependencies": {
     "bootstrap": "5.3.3",
     "discord.js": "^14.16.3",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "pokedex-promise-v2": "^4.2.0"
   }
 }
