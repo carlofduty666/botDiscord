@@ -7,8 +7,173 @@ const app = express();
 const port = process.env.PORT || 3000;
 const P = new Pokedex();
 
+app.use('/assets', express.static('assets'));
+
 app.get('/', (req, res) => {
-  res.send('El bot está vivo y corriendo!');
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokéBot Discord</title>
+    <link rel="icon" type="image/png" href="/assets/img/pokeball.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background-color: #1a1a1a;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/assets/img/Gemini_Generated_Image_z844hvz844hvz844.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* Oscurecido sutil */
+            z-index: 2;
+        }
+
+        .content {
+            position: relative;
+            z-index: 3;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            color: #ddd;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .pokeball-btn {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(to bottom, #ff0000 50%, #ffffff 50%);
+            border-radius: 50%;
+            border: 4px solid #333;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .pokeball-btn::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: #333;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .pokeball-btn::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 3px solid #333;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+        }
+
+        .pokeball-btn:hover {
+            transform: scale(1.2) rotate(360deg);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn-text {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-wrapper:hover .btn-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="background-image"></div>
+        <div class="overlay"></div>
+        <div class="content">
+            <h1>Bienvenido a PokéBot</h1>
+            <p>Tu compañero definitivo para explorar el mundo Pokémon en Discord. Datos, estrategias y diversión en un solo lugar.</p>
+            
+            <div class="btn-wrapper">
+                <a href="https://discord.com/oauth2/authorize?client_id=${process.env.ID}&permissions=8&scope=bot%20applications.commands" class="pokeball-btn" target="_blank" title="Invitar al Bot">
+                </a>
+                <span class="btn-text">¡Atrápalo ya!</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+  `;
+  res.send(html);
 });
 
 app.listen(port, () => {
@@ -41,6 +206,8 @@ const translations = {
         randomTitle: 'Random Pokemon',
         teamTitle: 'Random Team',
         itemTitle: (name) => `Item info: ${name}`,
+        helpTitle: 'Bot Help',
+        helpDesc: 'Here are the available commands:',
     },
     es: {
         description: '¿qué pokémon estás buscando? :)',
@@ -61,6 +228,8 @@ const translations = {
         randomTitle: 'Pokémon Aleatorio',
         teamTitle: 'Equipo Aleatorio',
         itemTitle: (name) => `Información del objeto: ${name}`,
+        helpTitle: 'Ayuda del Bot',
+        helpDesc: 'Aquí están los comandos disponibles:',
     },
     it: {
         description: 'quale pokemon stai cercando? :)',
@@ -81,6 +250,8 @@ const translations = {
         randomTitle: 'Pokemon Casuale',
         teamTitle: 'Squadra Casuale',
         itemTitle: (name) => `Info strumento: ${name}`,
+        helpTitle: 'Aiuto del Bot',
+        helpDesc: 'Ecco i comandi disponibili:',
     },
     de: {
         description: 'welches pokemon suchst du? :)',
@@ -101,6 +272,8 @@ const translations = {
         randomTitle: 'Zufälliges Pokemon',
         teamTitle: 'Zufälliges Team',
         itemTitle: (name) => `Item-Info: ${name}`,
+        helpTitle: 'Bot Hilfe',
+        helpDesc: 'Hier sind die verfügbaren Befehle:',
     }
 };
 
@@ -236,6 +409,10 @@ const commands = [
                 required: true,
             }
         ]
+    },
+    {
+        name: 'help',
+        description: 'Show all available commands',
     }
 ];
 
@@ -258,10 +435,62 @@ client.on('ready', () => {
     console.log(`Logged as ${client.user.tag}!`);
 });
 
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
+    if (message.mentions.has(client.user)) {
+        const guildId = message.guildId;
+        const helpEmbed = new EmbedBuilder()
+            .setTitle(getMsg(guildId, 'helpTitle'))
+            .setDescription(getMsg(guildId, 'helpDesc'))
+            .addFields(
+                { name: '/pokemon [name]', value: 'Get info about a pokemon' },
+                { name: '/weakness [name]', value: 'Get weaknesses of a pokemon' },
+                { name: '/move [name]', value: 'Get info about a move' },
+                { name: '/ability [name]', value: 'Get info about an ability' },
+                { name: '/evolution [name]', value: 'Get evolution chain of a pokemon' },
+                { name: '/pokedex [name]', value: 'Get pokedex entry of a pokemon' },
+                { name: '/shiny [name]', value: 'Get shiny version of a pokemon' },
+                { name: '/random', value: 'Get a random pokemon' },
+                { name: '/team', value: 'Get a random team of 6 pokemon' },
+                { name: '/item [name]', value: 'Get info about an item' },
+                { name: '/language [lang]', value: 'Change bot language' },
+                { name: '/help', value: 'Show this message' }
+            )
+            .setColor('#0099FF');
+
+        await message.reply({ embeds: [helpEmbed] });
+    }
+});
+
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
 
     const { commandName, guildId } = interaction;
+
+    if (commandName === 'help') {
+        const helpEmbed = new EmbedBuilder()
+            .setTitle(getMsg(guildId, 'helpTitle'))
+            .setDescription(getMsg(guildId, 'helpDesc'))
+            .addFields(
+                { name: '/pokemon [name]', value: 'Get info about a pokemon' },
+                { name: '/weakness [name]', value: 'Get weaknesses of a pokemon' },
+                { name: '/move [name]', value: 'Get info about a move' },
+                { name: '/ability [name]', value: 'Get info about an ability' },
+                { name: '/evolution [name]', value: 'Get evolution chain of a pokemon' },
+                { name: '/pokedex [name]', value: 'Get pokedex entry of a pokemon' },
+                { name: '/shiny [name]', value: 'Get shiny version of a pokemon' },
+                { name: '/random', value: 'Get a random pokemon' },
+                { name: '/team', value: 'Get a random team of 6 pokemon' },
+                { name: '/item [name]', value: 'Get info about an item' },
+                { name: '/language [lang]', value: 'Change bot language' },
+                { name: '/help', value: 'Show this message' }
+            )
+            .setColor('#0099FF');
+
+        await interaction.reply({ embeds: [helpEmbed] });
+        return;
+    }
 
     if (commandName === 'language') {
         const lang = interaction.options.getString('lang');
@@ -280,9 +509,16 @@ client.on('interactionCreate', async (interaction) => {
         try {
             // Using PokedexPromiseV2
             const pokemonData = await P.getPokemonByName(pokemonName.toLowerCase());
+            const speciesData = await P.getPokemonSpeciesByName(pokemonData.species.name);
+            const langCode = getLangCode(guildId);
+
+            const entry = speciesData.flavor_text_entries.find(e => e.language.name === langCode)
+                       || speciesData.flavor_text_entries.find(e => e.language.name === 'en');
+            const bio = entry ? entry.flavor_text.replace(/[\n\f]/g, ' ') : 'No bio available.';
 
             const embed = new EmbedBuilder()
                 .setTitle(getMsg(guildId, 'infoTitle', pokemonData.name))
+                .setDescription(bio)
                 .addFields(
                     { name: getMsg(guildId, 'type'), value: `${pokemonData.types.map(t => t.type.name).join(', ')}`, inline: true },
                     { name: getMsg(guildId, 'ability'), value: `${pokemonData.abilities.map(a => a.ability.name).join(', ')}`, inline: true },
