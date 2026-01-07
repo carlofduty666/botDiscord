@@ -16,19 +16,26 @@ app.get('/', (req, res) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PokéBot Discord</title>
+    <title>PokéBot Discord - Tu compañero Pokémon</title>
     <link rel="icon" type="image/png" href="/assets/img/pokeball.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+        :root {
+            --poke-red: #ff3b3b;
+            --poke-white: #f0f0f0;
+            --poke-black: #222;
+            --glass-bg: rgba(20, 20, 20, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             overflow: hidden;
-            background-color: #1a1a1a;
+            background-color: #111;
         }
 
         .container {
@@ -53,63 +60,97 @@ app.get('/', (req, res) => {
             background-size: cover;
             background-position: center;
             z-index: 1;
+            filter: blur(3px) brightness(0.6);
+            transform: scale(1.05); /* Avoid white edges from blur */
         }
 
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6); /* Oscurecido sutil */
-            z-index: 2;
-        }
-
-        .content {
+        .content-card {
             position: relative;
             z-index: 3;
-            animation: fadeIn 1.5s ease-out;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 3rem 4rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            width: 90%;
+            animation: slideUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
+            margin: 0;
             margin-bottom: 0.5rem;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            background: linear-gradient(to right, #fff, #bbb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        p {
+        .subtitle {
             font-size: 1.2rem;
-            margin-bottom: 3rem;
-            color: #ddd;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin-bottom: 2.5rem;
+            color: #ccc;
+            font-weight: 400;
             line-height: 1.6;
         }
 
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        /* Shared Button Styles */
+        .action-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            group;
+        }
+
+        .btn-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .action-btn-wrapper:hover .btn-label {
+            opacity: 1;
+            transform: translateY(5px);
+            color: var(--poke-red);
+        }
+
+        /* POKEBALL BUTTON (Invite) */
         .pokeball-btn {
             position: relative;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
             width: 80px;
             height: 80px;
-            background: linear-gradient(to bottom, #ff0000 50%, #ffffff 50%);
+            background: linear-gradient(to bottom, var(--poke-red) 50%, var(--poke-white) 50%);
             border-radius: 50%;
-            border: 4px solid #333;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid var(--poke-black);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
-            text-decoration: none;
+            display: block;
         }
 
         .pokeball-btn::before {
             content: '';
             position: absolute;
             width: 100%;
-            height: 4px;
-            background: #333;
+            height: 6px;
+            background: var(--poke-black);
             top: 50%;
             transform: translateY(-50%);
         }
@@ -117,40 +158,86 @@ app.get('/', (req, res) => {
         .pokeball-btn::after {
             content: '';
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #fff;
-            border: 3px solid #333;
+            width: 20px;
+            height: 20px;
+            background: var(--poke-white);
+            border: 4px solid var(--poke-black);
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 4;
+            z-index: 5;
         }
 
-        .pokeball-btn:hover {
-            transform: scale(1.2) rotate(360deg);
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+        .action-btn-wrapper:hover .pokeball-btn {
+            transform: scale(1.15) rotate(15deg);
+            box-shadow: 0 10px 25px rgba(255, 59, 59, 0.4);
+        }
+
+        /* CHAT BUBBLE BUTTON (Chat) */
+        .chat-btn {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            /* Chat bubble shape */
+            border-radius: 50% 50% 0 50%;
+            background: linear-gradient(135deg, var(--poke-red) 50%, var(--poke-white) 50%);
+            border: 4px solid var(--poke-black);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            display: block;
+            transform: rotate(45deg); /* Initial rotation for bubble tail effect */
+        }
+
+        /* Inner detail to mimic pokeball line on bubble */
+        .chat-btn::before {
+            content: '';
+            position: absolute;
+            width: 110%; /* Slightly larger to cover diagonal */
+            height: 6px;
+            background: var(--poke-black);
+            top: 50%;
+            left: -5%;
+            transform: translateY(-50%) rotate(-45deg); /* Counter rotate line */
+            z-index: 2;
         }
         
-        .btn-text {
-            display: block;
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
+        .chat-btn::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: var(--poke-white);
+            border: 4px solid var(--poke-black);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
         }
 
-        .btn-wrapper:hover .btn-text {
-            opacity: 1;
-            transform: translateY(0);
+        /* Wrapper to fix rotation context */
+        .chat-btn-inner {
+            width: 100%;
+            height: 100%;
+             /* Fix icon rotation inside if we had one */
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
+        .action-btn-wrapper:hover .chat-btn {
+            transform: scale(1.15) rotate(45deg) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .content-card { padding: 2rem; width: 85%; }
+            .buttons-container { gap: 2rem; }
         }
 
     </style>
@@ -158,15 +245,25 @@ app.get('/', (req, res) => {
 <body>
     <div class="container">
         <div class="background-image"></div>
-        <div class="overlay"></div>
-        <div class="content">
-            <h1>Bienvenido a PokéBot</h1>
-            <p>Tu compañero definitivo para explorar el mundo Pokémon en Discord. Datos, estrategias y diversión en un solo lugar.</p>
+        <div class="content-card">
+            <h1>PokéBot</h1>
+            <p class="subtitle">Descubre, combate y colecciona información de tus Pokémon favoritos. <br>El compañero definitivo para tu servidor de Discord.</p>
             
-            <div class="btn-wrapper">
-                <a href="https://discord.com/oauth2/authorize?client_id=${process.env.ID}&permissions=8&scope=bot%20applications.commands" class="pokeball-btn" target="_blank" title="Invitar al Bot">
-                </a>
-                <span class="btn-text">¡Atrápalo ya!</span>
+            <div class="buttons-container">
+                <!-- Chat Button -->
+                <div class="action-btn-wrapper">
+                    <a href="https://discord.com/users/${process.env.ID}" class="chat-btn" target="_blank" title="Chatear con el Bot">
+                        <div class="chat-btn-inner"></div>
+                    </a>
+                    <span class="btn-label">Chatear</span>
+                </div>
+
+                <!-- Invite Button -->
+                <div class="action-btn-wrapper">
+                    <a href="https://discord.com/oauth2/authorize?client_id=${process.env.ID}&permissions=8&scope=bot%20applications.commands" class="pokeball-btn" target="_blank" title="Invitar al Servidor">
+                    </a>
+                    <span class="btn-label">Invitar</span>
+                </div>
             </div>
         </div>
     </div>
